@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vaultwarden
+  namespace: argocd
+spec:
+  syncPolicy:
+    automated: {}
+  project: default
+  source:
+    repoURL: https://github.com/manueljishi/homelab.git
+    targetRevision: HEAD
+    path: manifests/vaultwarden
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default

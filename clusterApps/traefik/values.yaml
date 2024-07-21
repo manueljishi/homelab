@@ -1,4 +1,5 @@
 additionalArguments:
+  - "--providers.kubernetesingress.ingressendpoint.publishedservice=traefik/traefik"
 # Configure your CertificateResolver here...
 # 
 # HTTP Challenge

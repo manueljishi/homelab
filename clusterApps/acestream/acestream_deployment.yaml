@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: acestream
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: acestream
+  template:
+    metadata:
+      labels:
+        app: acestream
+    spec:
+      containers:
+        - name: acestream
+          image: blaiseio/acelink
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "1G"
+              cpu: "1"
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "Europe/Madrid"
+          ports:
+            - containerPort: 6878    
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: acestream
+spec:
+  selector:
+    app: acestream
+  ports:
+  - name: http
+    port: 6878
+  type: ClusterIP

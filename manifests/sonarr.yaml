@@ -1,0 +1,152 @@
+---
+# Source: sonarr/templates/app.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: release-name-sonarr
+  labels:
+    helm.sh/chart: sonarr-0.1.0
+    app.kubernetes.io/name: sonarr
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "4.0.8"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: sonarr/templates/app.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-name-sonarr
+  labels:
+    helm.sh/chart: sonarr-0.1.0
+    app.kubernetes.io/name: sonarr
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "4.0.8"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8989
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: sonarr
+    app.kubernetes.io/instance: release-name
+---
+# Source: sonarr/templates/app.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-sonarr
+  labels:
+    helm.sh/chart: sonarr-0.1.0
+    app.kubernetes.io/name: sonarr
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "4.0.8"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sonarr
+      app.kubernetes.io/instance: release-name
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: sonarr-0.1.0
+        app.kubernetes.io/name: sonarr
+        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/version: "4.0.8"
+        app.kubernetes.io/managed-by: Helm
+        app: sonarr
+    spec:
+      serviceAccountName: release-name-sonarr
+      securityContext:
+        {}
+      containers:
+        - name: sonarr
+          securityContext:
+            {}
+          image: "linuxserver/sonarr:4.0.8"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8989
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 1
+            httpGet:
+              path: /
+              port: 8989
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            timeoutSeconds: 3
+          readinessProbe:
+            failureThreshold: 2
+            httpGet:
+              path: /
+              port: 8989
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 3
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1G
+            requests:
+              cpu: 100m
+              memory: 512Mi
+          volumeMounts:
+            - mountPath: /config
+              name: sonarr-config
+            - mountPath: /data/tvshows
+              name: tvshows
+            - mountPath: /data/anime
+              name: anime
+            - mountPath: /downloads/complete
+              name: downloads-complete
+      volumes:
+        - hostPath:
+            path: /config/sonarr_config
+            type: Directory
+          name: sonarr-config
+        - hostPath:
+            path: /media/tvshows
+            type: Directory
+          name: tvshows
+        - hostPath:
+            path: /media/anime
+            type: Directory
+          name: anime
+        - hostPath:
+            path: /media/transmission/downloads/complete
+            type: Directory
+          name: downloads-complete
+---
+# Source: sonarr/templates/app.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: release-name-sonarr
+  labels:
+    helm.sh/chart: sonarr-0.1.0
+    app.kubernetes.io/name: sonarr
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "4.0.8"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: "jishihome.xyz"
+      http:
+        paths:
+          - path: /sonarr
+            pathType: Prefix
+            backend:
+              service:
+                name: release-name-sonarr
+                port:
+                  number: 8989

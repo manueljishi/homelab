@@ -1,0 +1,13 @@
+server:
+  ingress:
+    enabled: true
+    ingressClassName: "traefik"
+    path: "/"
+    hostname: "argocd.jishihome.xyz"
+    annotations: {
+      traefik.ingress.kubernetes.io/router.entrypoints: "web, websecure"
+    }
+    
+configs:
+  params:
+    server.insecure: true

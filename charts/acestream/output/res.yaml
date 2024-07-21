@@ -1,0 +1,86 @@
+---
+# Source: acestream/templates/app.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-name-acestream
+  labels:
+    helm.sh/chart: acestream-0.1.0
+    app.kubernetes.io/name: acestream
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6878
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: acestream
+    app.kubernetes.io/instance: release-name
+---
+# Source: acestream/templates/app.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-acestream
+  labels:
+    helm.sh/chart: acestream-0.1.0
+    app.kubernetes.io/name: acestream
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: acestream
+      app.kubernetes.io/instance: release-name
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: acestream-0.1.0
+        app.kubernetes.io/name: acestream
+        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/version: "latest"
+        app.kubernetes.io/managed-by: Helm
+        app: acestream
+    spec:
+      serviceAccountName: release-name-acestream
+      securityContext:
+        {}
+      containers:
+        - name: acestream
+          securityContext:
+            {}
+          image: "blaiseio/acelink:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 6878
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 1
+            httpGet:
+              path: /
+              port: 6878
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            timeoutSeconds: 3
+          readinessProbe:
+            failureThreshold: 2
+            httpGet:
+              path: /
+              port: 6878
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 3
+          resources:
+            limits:
+              cpu: "1"
+              memory: 1G
+            requests:
+              cpu: 100m
+              memory: 256Mi

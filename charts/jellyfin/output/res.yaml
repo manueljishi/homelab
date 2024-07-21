@@ -1,0 +1,158 @@
+---
+# Source: jellyfin/templates/app.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: release-name-jellyfin
+  labels:
+    helm.sh/chart: jellyfin-0.1.0
+    app.kubernetes.io/name: jellyfin
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "10.9.7"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: jellyfin/templates/app.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-name-jellyfin
+  labels:
+    helm.sh/chart: jellyfin-0.1.0
+    app.kubernetes.io/name: jellyfin
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "10.9.7"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8096
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: jellyfin
+    app.kubernetes.io/instance: release-name
+---
+# Source: jellyfin/templates/app.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-jellyfin
+  labels:
+    helm.sh/chart: jellyfin-0.1.0
+    app.kubernetes.io/name: jellyfin
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "10.9.7"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: jellyfin
+      app.kubernetes.io/instance: release-name
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: jellyfin-0.1.0
+        app.kubernetes.io/name: jellyfin
+        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/version: "10.9.7"
+        app.kubernetes.io/managed-by: Helm
+        app: jellyfin
+    spec:
+      serviceAccountName: release-name-jellyfin
+      securityContext:
+        {}
+      containers:
+        - name: jellyfin
+          securityContext:
+            privileged: true
+          image: "jellyfin/jellyfin:10.9.7"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8096
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 1
+            httpGet:
+              path: /
+              port: 8096
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            timeoutSeconds: 3
+          readinessProbe:
+            failureThreshold: 2
+            httpGet:
+              path: /
+              port: 8096
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 3
+          resources:
+            limits:
+              cpu: "4"
+              memory: 4G
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          volumeMounts:
+            - mountPath: /config
+              name: jellyfin-config
+            - mountPath: /data/tvshows
+              name: tvshows
+            - mountPath: /data/movies
+              name: movies
+            - mountPath: /data/anime
+              name: anime
+            - mountPath: /dev/dri
+              name: dri
+      volumes:
+        - hostPath:
+            path: /config/jellyfin_config
+            type: Directory
+          name: jellyfin-config
+        - hostPath:
+            path: /media/tvshows
+            type: Directory
+          name: tvshows
+        - hostPath:
+            path: /media/movies
+            type: Directory
+          name: movies
+        - hostPath:
+            path: /media/anime
+            type: Directory
+          name: anime
+        - hostPath:
+            path: /dev/dri
+            type: Directory
+          name: dri
+---
+# Source: jellyfin/templates/app.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: release-name-jellyfin
+  labels:
+    helm.sh/chart: jellyfin-0.1.0
+    app.kubernetes.io/name: jellyfin
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "10.9.7"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: "media.jishihome.xyz"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: release-name-jellyfin
+                port:
+                  number: 8096

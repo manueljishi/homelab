@@ -1,0 +1,15 @@
+{{ include "libchart.serviceAccount"  .}}
+---
+{{- if .Values.ingress.enabled -}}
+{{ include "libchart.ingress"  .}}
+---
+{{- end}}
+{{ include "libchart.service"  .}}
+---
+{{ include "libchart.deployment"  .}}
+---
+{{ include "libchart.hpa"  .}}
+{{- if .Values.test.enabled -}}
+---
+{{ include "libchart.test"  .}}
+{{- end}}

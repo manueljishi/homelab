@@ -1,0 +1,97 @@
+---
+# Source: jackett/templates/app.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: release-name-jackett
+  labels:
+    helm.sh/chart: jackett-0.1.0
+    app.kubernetes.io/name: jackett
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "0.22.353"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: jackett/templates/app.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-name-jackett
+  labels:
+    helm.sh/chart: jackett-0.1.0
+    app.kubernetes.io/name: jackett
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "0.22.353"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9117
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: jackett
+    app.kubernetes.io/instance: release-name
+---
+# Source: jackett/templates/app.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: release-name-jackett
+  labels:
+    helm.sh/chart: jackett-0.1.0
+    app.kubernetes.io/name: jackett
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "0.22.353"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: jackett
+      app.kubernetes.io/instance: release-name
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: jackett-0.1.0
+        app.kubernetes.io/name: jackett
+        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/version: "0.22.353"
+        app.kubernetes.io/managed-by: Helm
+        app: jackett
+    spec:
+      serviceAccountName: release-name-jackett
+      securityContext:
+        {}
+      containers:
+        - name: jackett
+          securityContext:
+            {}
+          image: "linuxserver/jackett:0.22.353"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 9117
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 20m
+              memory: 128Mi
+          volumeMounts:
+            - mountPath: /config
+              name: jackett-config
+            - mountPath: /downloads
+              name: downloads
+      volumes:
+        - hostPath:
+            path: /config/jackett_config
+            type: Directory
+          name: jackett-config
+        - hostPath:
+            path: /media/transmission/downloads
+            type: Directory
+          name: downloads

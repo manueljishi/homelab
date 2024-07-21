@@ -1,5 +1,4 @@
 terraform {
-  backend "remote" {}
   required_providers {
     
     kubernetes = {

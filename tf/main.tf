@@ -8,7 +8,7 @@ resource "helm_release" "argocd" {
   timeout          = "1500"
   create_namespace = true
   values = [ 
-	"${file(abspath("${path.module}/../clusterApps/argocd/values.yaml"))}"
+  file("../clusterApps/argocd/values.yaml")
    ]
 }
 
@@ -22,7 +22,7 @@ resource "helm_release" "traefik" {
   timeout          = "1500"
   create_namespace = true
   values = [ 
-	"${file(abspath("${path.module}/../clusterApps/traefik/values.yaml"))}"
+  file("../clusterApps/traefik/values.yaml")
    ]
 }
 resource "helm_release" "nvidiagpu" {

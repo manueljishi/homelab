@@ -16,7 +16,8 @@ containsElement () {
 for folder in */; do
     # Remove the trailing slash from the folder name
     folder_name="${folder%/}"
-    output_file="$output_base_dir/$folder_name.yaml"
+    output_folder="$output_base_dir/$folder_name"
+    output_file="manifest.yaml"
 
 
 	if containsElement "$folder_name" "${skip_folders[@]}"; then
@@ -24,9 +25,11 @@ for folder in */; do
         continue
     fi
     
-	rm "$output_file"
+	rm -rf "$output_folder"
+
+    mkdir "$output_folder"
     
-    helm template "$folder" > "$output_file"
+    helm template "$folder" > "$output_folder"/"$output_file"
     
     echo "Generated manifest for $folder_name at $output_file"
 done

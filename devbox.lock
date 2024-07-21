@@ -132,6 +132,54 @@
           "store_path": "/nix/store/n4p0zh1s8jz9mqf1r1pki23kviq4waa7-kubernetes-helm-3.15.3"
         }
       }
+    },
+    "terraform@latest": {
+      "last_modified": "2024-07-12T02:08:50Z",
+      "resolved": "github:NixOS/nixpkgs/6794d064edc69918bb0fc0e0eda33ece324be17a#terraform",
+      "source": "devbox-search",
+      "version": "1.9.2",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/ysgms9287qz1rj3a84rf0y79sa4v7ww3-terraform-1.9.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/ysgms9287qz1rj3a84rf0y79sa4v7ww3-terraform-1.9.2"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/r3083hqy57n01n3v7ws6w671f49rlkc7-terraform-1.9.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/r3083hqy57n01n3v7ws6w671f49rlkc7-terraform-1.9.2"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/25y28ymj6c2rvn5f9jjfzgy17cxh6lj9-terraform-1.9.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/25y28ymj6c2rvn5f9jjfzgy17cxh6lj9-terraform-1.9.2"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/lhdp59kxyvlgy0ns05xgb4wpgs35lqwn-terraform-1.9.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/lhdp59kxyvlgy0ns05xgb4wpgs35lqwn-terraform-1.9.2"
+        }
+      }
     }
   }
 }
